@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2"
+  }
+}
