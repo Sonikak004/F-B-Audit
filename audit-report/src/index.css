@@ -11,3 +11,109 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Controls grid: responsive and prevents overflow */
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: start;
+  box-sizing: border-box;
+}
+.controls-grid > div { min-width: 0; } /* KEY: allow children to shrink */
+
+/* Make form controls respect padding and not overflow */
+.controls-grid select,
+.controls-grid input,
+.controls-grid .btn,
+.controls-grid button {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 38px;
+}
+
+/* Date inputs: extra right padding so native calendar icon fits inside on mobile */
+.controls-grid input[type="date"] {
+  padding-right: 38px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Keep calendar icon visible on some browsers (if you style away native arrows) */
+.controls-grid input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 10px;
+  opacity: 0.8;
+}
+
+/* Quick action buttons (This month / Last month / Clear) */
+.quick-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.quick-buttons .btn-sm {
+  padding: 6px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+/* Actions below controls */
+.controls-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* Table wrapper adjustments */
+.rr-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.rr-table { width: 100%; min-width: 540px; border-collapse: collapse; }
+.rr-table th, .rr-table td { border: 1px solid #f3f4f6; padding: 8px; }
+
+/* Responsive breakpoints */
+@media (max-width: 900px) {
+  .controls-grid { grid-template-columns: repeat(2, 1fr); }
+  .rr-table { min-width: 640px; }
+}
+@media (max-width: 720px) {
+  .controls-grid { grid-template-columns: 1fr; }
+  .controls-actions { flex-direction: column; }
+  .controls-actions .btn { width: 100%; box-sizing: border-box; }
+  .rr-table { min-width: 520px; font-size: 15px; }
+}
+
+/* --- Calendar icon inside the date input --- */
+.controls-grid input[type="date"] {
+  position: relative;         /* allow absolute positioning of the picker */
+  padding-right: 42px;        /* room for the icon (increase if you still see overlap) */
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* webkit: position the calendar icon inside the input on the right */
+.controls-grid input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px;      /* keep clickable area generous */
+  pointer-events: auto;
+}
+
+/* firefox: add padding to avoid overlap (firefox doesn't support moving the icon) */
+.controls-grid input[type="date"]::-moz-focus-inner { 
+  border: 0;
+}
+
+/* some browsers add a clear button - ensure it doesn't overflow */
+.controls-grid input[type="date"]::-ms-clear,
+.controls-grid input[type="date"]::-ms-expand {
+  display: none;
+}
+

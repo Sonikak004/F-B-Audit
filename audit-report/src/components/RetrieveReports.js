@@ -1,7 +1,7 @@
 // src/components/RetrieveReports.js
 import React, { useState, useMemo } from "react";
 import { db } from "../firebase";
-import { collection, query, where, orderBy, getDocs, limit } from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -506,16 +506,6 @@ export default function RetrieveReports({ goBack }) {
     doc.save(`Staff_Summary_${branch.replace(/\s+/g, "_")}_${safeRange}.pdf`);
   };
 
-  const downloadJSON = (items, name) => {
-    const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${name}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const setPresetMonth = (year, monthIndex) => {
     const from = new Date(year, monthIndex, 1);
     const to = new Date(year, monthIndex + 1, 0);
@@ -529,19 +519,61 @@ export default function RetrieveReports({ goBack }) {
     setViewMode("list");
   };
 
+  /* ===== styles (embedded so copy-paste is easiest) ===== */
+  const styles = `
+    .rr-container { max-width: 1100px; margin: 0 auto; padding: 18px; }
+    .rr-card { border: 1px solid #e6e6e6; border-radius: 8px; padding: 12px; margin-bottom: 12px; box-sizing: border-box; background: #fff; }
+    .controls-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: start; box-sizing: border-box; }
+    .controls-grid > div { min-width: 0; overflow: hidden; } /* important: avoids children overflowing */
+    .controls-grid select, .controls-grid input { width: 100%; box-sizing: border-box; min-height: 38px; padding: 8px; }
+    /* specifically make date inputs fit and keep the calendar icon inside */
+    input[type="date"] { width: 100%; box-sizing: border-box; padding-right: 12px; min-width: 0; }
+    /* for browsers that allow styling the picker */
+    input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; padding: 0 6px; }
+    .controls-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .quick-buttons { display: flex; gap: 8px; margin-top: 8px; flex-wrap: nowrap; align-items: center; overflow: visible; }
+    .quick-buttons .quick-btn { padding: 8px 10px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; font-size: 13px; }
+    .quick-btn-this { background: #1976d2; color: #fff; border-color: #1976d2; }
+    .quick-btn-last { background: #f0ad4e; color: #fff; border-color: #f0ad4e; }
+    .quick-btn-clear { background: #fff; color: #333; border: 1px solid #d0d7de; }
+    .btn { padding: 10px 14px; border-radius: 6px; border: 1px solid #d0d7de; background: #fff; cursor: pointer; }
+    .btn-primary { background: #1976d2; color: #fff; border-color: #1976d2; }
+    .btn-sm { padding: 6px 8px; font-size: 13px; border-radius: 6px; background: #fff; border: 1px solid #ddd; cursor: pointer; }
+    .rr-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #eee; border-radius: 8px; padding: 8px; }
+    .rr-table { width: 100%; border-collapse: collapse; min-width: 540px; }
+    .rr-table th, .rr-table td { border: 1px solid #f3f4f6; padding: 8px; text-align: left; vertical-align: middle; }
+    .link-like { color: #1976d2; cursor: pointer; text-decoration: underline; display: inline-block; }
+    .employee-panel { border: 1px solid #e6e6e6; border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #fff; }
+    @media (max-width: 900px) {
+      .controls-grid { grid-template-columns: repeat(2, 1fr); }
+      .rr-table { min-width: 640px; }
+    }
+    @media (max-width: 720px) {
+      .controls-grid { grid-template-columns: 1fr; }
+      .controls-actions { flex-direction: column; }
+      .rr-table { min-width: 520px; font-size: 14px; }
+      .btn { width: 100%; box-sizing: border-box; }
+      /* MAKE QUICK BUTTONS VERTICAL on small screens (requested) */
+      .quick-buttons { flex-direction: column; gap: 6px; align-items: stretch; }
+      .quick-buttons .quick-btn { width: 100%; display: inline-block; box-sizing: border-box; white-space: normal; text-align: center; }
+    }
+  `;
+
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: 18 }}>
+    <div className="rr-container">
+      <style>{styles}</style>
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <button onClick={goBack} style={{ padding: "6px 10px" }}>← Back</button>
         <h3 style={{ margin: 0, color: "#1976d2" }}>Retrieve Reports</h3>
         <div style={{ width: 40 }} />
       </div>
 
-      <div style={{ border: "1px solid #e6e6e6", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+      <div className="rr-card">
+        <div className="controls-grid">
           <div>
             <label style={{ fontWeight: 700 }}>Branch</label>
-            <select value={branch} onChange={(e) => setBranch(e.target.value)} style={{ width: "100%", padding: 8, marginTop: 6 }}>
+            <select value={branch} onChange={(e) => setBranch(e.target.value)} style={{ marginTop: 6 }}>
               <option value="">-- Select Branch --</option>
               {branches.map((b) => <option key={b} value={b}>{b}</option>)}
             </select>
@@ -549,7 +581,7 @@ export default function RetrieveReports({ goBack }) {
 
           <div>
             <label style={{ fontWeight: 700 }}>Report Type</label>
-            <select value={reportType} onChange={(e) => setReportType(e.target.value)} style={{ width: "100%", padding: 8, marginTop: 6 }}>
+            <select value={reportType} onChange={(e) => setReportType(e.target.value)} style={{ marginTop: 6 }}>
               <option value="unit">Unit Audit</option>
               <option value="staff">Staff Evaluations</option>
             </select>
@@ -558,28 +590,67 @@ export default function RetrieveReports({ goBack }) {
           <div>
             <label style={{ fontWeight: 700 }}>Date range</label>
             <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-              <input type="date" value={dateFromISO} onChange={(e) => setDateFromISO(e.target.value)} style={{ padding: 8, flex: 1 }} />
-              <input type="date" value={dateToISO} onChange={(e) => setDateToISO(e.target.value)} style={{ padding: 8, flex: 1 }} />
+              <input
+                type="date"
+                value={dateFromISO}
+                onChange={(e) => setDateFromISO(e.target.value)}
+                aria-label="Date from"
+                style={{ minWidth: 0 }}
+              />
+              <input
+                type="date"
+                value={dateToISO}
+                onChange={(e) => setDateToISO(e.target.value)}
+                aria-label="Date to"
+                style={{ minWidth: 0 }}
+              />
             </div>
-            <div style={{ marginTop: 8, display: "flex", gap: 6 }}>
-              <button type="button" onClick={() => { const now = new Date(); setPresetMonth(now.getFullYear(), now.getMonth()); }} className="btn btn-sm">This month</button>
-              <button type="button" onClick={() => { const now = new Date(); const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1); setPresetMonth(prev.getFullYear(), prev.getMonth()); }} className="btn btn-sm">Last month</button>
-              <button type="button" onClick={() => { setDateFromISO(""); setDateToISO(""); }} className="btn btn-sm">Clear</button>
+
+            <div className="quick-buttons" role="group" aria-label="Quick date presets">
+              <button
+                type="button"
+                className="quick-btn quick-btn-this"
+                onClick={() => {
+                  const now = new Date();
+                  setPresetMonth(now.getFullYear(), now.getMonth());
+                }}
+              >
+                This month
+              </button>
+
+              <button
+                type="button"
+                className="quick-btn quick-btn-last"
+                onClick={() => {
+                  const now = new Date();
+                  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                  setPresetMonth(prev.getFullYear(), prev.getMonth());
+                }}
+              >
+                Last month
+              </button>
+
+              <button
+                type="button"
+                className="quick-btn quick-btn-clear"
+                onClick={() => { setDateFromISO(""); setDateToISO(""); }}
+              >
+                Clear
+              </button>
             </div>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <div className="controls-actions">
           <button onClick={runQuery} className="btn btn-primary" disabled={loading}>
             {loading ? "Searching…" : "Search"}
           </button>
 
-          <button onClick={() => { setBranch(""); setDateFromISO(""); setDateToISO(""); setReportType("unit"); setResults([]); setMessage(""); setLastError(null); setSelectedEmployee(null); setEmployeeHistory([]); setEmployeeAverages({}); setViewMode("list"); }} className="btn btn-outline-secondary" disabled={loading}>
+          <button onClick={() => {
+            setBranch(""); setDateFromISO(""); setDateToISO(""); setReportType("unit");
+            setResults([]); setMessage(""); setLastError(null); setSelectedEmployee(null); setEmployeeHistory([]); setEmployeeAverages({}); setViewMode("list");
+          }} className="btn">
             Reset
-          </button>
-
-          <button onClick={async () => { setMessage(""); setLastError(null); try { const col = collection(db, "unitAudits"); const q = query(col, orderBy("timestamp", "desc"), limit(1)); await getDocs(q); setMessage("Quick test OK — Firestore reachable."); } catch (err) { console.error(err); setLastError(err); setMessage("Quick test failed — see console."); } }} className="btn btn-outline-secondary" disabled={loading}>
-            Quick test
           </button>
         </div>
       </div>
@@ -595,10 +666,10 @@ export default function RetrieveReports({ goBack }) {
 
       {/* Employee detail page */}
       {viewMode === "employee" && selectedEmployee && (
-        <div style={{ border: "1px solid #e6e6e6", borderRadius: 8, padding: 12, marginBottom: 12 }}>
+        <div className="employee-panel">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <button onClick={handleBackFromEmployee} className="btn btn-ghost">← Back</button>
+              <button onClick={handleBackFromEmployee} className="btn">← Back</button>
               <div>
                 <strong style={{ fontSize: 16 }}>{selectedEmployee.staffName || "-"}</strong>
                 <div style={{ color: "#666", fontSize: 13 }}>{selectedEmployee.empCode || "-"}</div>
@@ -619,14 +690,14 @@ export default function RetrieveReports({ goBack }) {
           ) : (
             <>
               <div style={{ maxHeight: 420, overflowY: "auto", border: "1px solid #f1f1f1", borderRadius: 6 }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table className="rr-table">
                   <thead>
                     <tr>
-                      <th style={{ borderBottom: "1px solid #eee", padding: 6, textAlign: "left" }}>#</th>
-                      <th style={{ borderBottom: "1px solid #eee", padding: 6, textAlign: "left" }}>Date</th>
-                      <th style={{ borderBottom: "1px solid #eee", padding: 6, textAlign: "left" }}>Score</th>
-                      <th style={{ borderBottom: "1px solid #eee", padding: 6, textAlign: "left" }}>Grade</th>
-                      <th style={{ borderBottom: "1px solid #eee", padding: 6, textAlign: "left" }}>Branch</th>
+                      <th style={{ padding: 6, textAlign: "left" }}>#</th>
+                      <th style={{ padding: 6, textAlign: "left" }}>Date</th>
+                      <th style={{ padding: 6, textAlign: "left" }}>Score</th>
+                      <th style={{ padding: 6, textAlign: "left" }}>Grade</th>
+                      <th style={{ padding: 6, textAlign: "left" }}>Branch</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -635,11 +706,11 @@ export default function RetrieveReports({ goBack }) {
                       const numericScore = score !== null && !Number.isNaN(Number(score)) ? Number(score) : null;
                       return (
                         <tr key={rec.id || i}>
-                          <td style={{ padding: 6, borderBottom: "1px solid #f7f7f7" }}>{i + 1}</td>
-                          <td style={{ padding: 6, borderBottom: "1px solid #f7f7f7" }}>{sanitize(rec.selection?.date ?? rec.date ?? "-")}</td>
-                          <td style={{ padding: 6, borderBottom: "1px solid #f7f7f7" }}>{numericScore !== null ? `${numericScore} / 100` : "-"}</td>
-                          <td style={{ padding: 6, borderBottom: "1px solid #f7f7f7" }}>{rec.grade || "-"}</td>
-                          <td style={{ padding: 6, borderBottom: "1px solid #f7f7f7" }}>{sanitize(rec.selection?.branch ?? rec.branch)}</td>
+                          <td style={{ padding: 6 }}>{i + 1}</td>
+                          <td style={{ padding: 6 }}>{sanitize(rec.selection?.date ?? rec.date ?? "-")}</td>
+                          <td style={{ padding: 6 }}>{numericScore !== null ? `${numericScore} / 100` : "-"}</td>
+                          <td style={{ padding: 6 }}>{rec.grade || "-"}</td>
+                          <td style={{ padding: 6 }}>{sanitize(rec.selection?.branch ?? rec.branch)}</td>
                         </tr>
                       );
                     })}
@@ -647,9 +718,8 @@ export default function RetrieveReports({ goBack }) {
                 </table>
               </div>
 
-              <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+              <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button onClick={() => downloadEmployeePDF(selectedEmployee)} className="btn btn-primary">📄 Download person PDF</button>
-                <button onClick={() => downloadJSON(employeeHistory, `${(selectedEmployee.staffName || "employee").replace(/\s+/g,"_")}_history`)} className="btn btn-outline-secondary">Download JSON</button>
               </div>
             </>
           )}
@@ -657,7 +727,7 @@ export default function RetrieveReports({ goBack }) {
       )}
 
       {/* Main results table */}
-      <div style={{ overflowX: "auto", border: "1px solid #eee", borderRadius: 8, padding: 8 }}>
+      <div className="rr-table-wrapper">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <div>
             <strong>{results.length} result(s)</strong>
@@ -667,30 +737,29 @@ export default function RetrieveReports({ goBack }) {
             {reportType === "staff" && results.length > 0 && (
               <button onClick={() => downloadSummaryPDF()} className="btn btn-primary">📄 Download summary PDF</button>
             )}
-            <button onClick={() => downloadJSON(results, `${branch}_${reportType}_${dateFromISO || dateToISO || "date"}`)} className="btn btn-outline-secondary">Download JSON</button>
           </div>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table className="rr-table" role="table" aria-label="Results table">
           <thead>
             <tr>
-              <th style={{ border: "1px solid #eee", padding: 8 }}>#</th>
+              <th style={{ padding: 8 }}>#</th>
               {reportType === "unit" ? (
                 <>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Date</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Branch</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>City</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Score</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Actions</th>
+                  <th style={{ padding: 8 }}>Date</th>
+                  <th style={{ padding: 8 }}>Branch</th>
+                  <th style={{ padding: 8 }}>City</th>
+                  <th style={{ padding: 8 }}>Score</th>
+                  <th style={{ padding: 8 }}>Actions</th>
                 </>
               ) : (
                 <>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Staff Name</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Branch</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>City</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Evaluations</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Avg</th>
-                  <th style={{ border: "1px solid #eee", padding: 8 }}>Actions</th>
+                  <th style={{ padding: 8 }}>Staff Name</th>
+                  <th style={{ padding: 8 }}>Branch</th>
+                  <th style={{ padding: 8 }}>City</th>
+                  <th style={{ padding: 8, textAlign: "center" }}>Evaluations</th>
+                  <th style={{ padding: 8 }}>Avg</th>
+                  <th style={{ padding: 8 }}>Actions</th>
                 </>
               )}
             </tr>
@@ -709,20 +778,19 @@ export default function RetrieveReports({ goBack }) {
               const scoreText = numericScore !== null ? `${numericScore} / 100` : "-";
               return (
                 <tr key={r.id || i}>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>{i + 1}</td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>{sanitize(r.selection?.date ?? r.date ?? "-")}</td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>{sanitize(r.selection?.branch ?? r.branch)}</td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>{sanitize(r.selection?.city ?? r.city)}</td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>
+                  <td style={{ padding: 8 }}>{i + 1}</td>
+                  <td style={{ padding: 8 }}>{sanitize(r.selection?.date ?? r.date ?? "-")}</td>
+                  <td style={{ padding: 8 }}>{sanitize(r.selection?.branch ?? r.branch)}</td>
+                  <td style={{ padding: 8 }}>{sanitize(r.selection?.city ?? r.city)}</td>
+                  <td style={{ padding: 8 }}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                       <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 12, background: badgeColor }} aria-hidden />
                       <span>{scoreText}</span>
                     </div>
                   </td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>
+                  <td style={{ padding: 8 }}>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button onClick={() => alert("Unit PDF (existing)")} className="btn btn-sm btn-outline-primary">PDF</button>
-                      <button onClick={() => downloadJSON([r], `record_${r.id || i}`)} className="btn btn-sm btn-outline-secondary">JSON</button>
+                      <button onClick={() => alert("Unit PDF (existing)")} className="btn">PDF</button>
                     </div>
                   </td>
                 </tr>
@@ -734,38 +802,33 @@ export default function RetrieveReports({ goBack }) {
               const badgeColor = scoreBadgeColor(emp.avg);
               return (
                 <tr key={`${emp.empCode || emp.staffName}-${idx}`}>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>{idx + 1}</td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>
-                    <span
-                      style={{ color: "#1976d2", cursor: "pointer", textDecoration: "underline" }}
-                      onClick={() => fetchEmployeeHistory({ empCode: emp.empCode, staffName: emp.staffName })}
-                    >
-                      {sanitize(emp.staffName)}
-                    </span>
-                    <div style={{ fontSize: 12, color: "#666" }}>{emp.empCode || "-"}</div>
+                  <td style={{ padding: 8 }}>{idx + 1}</td>
+                  <td style={{ padding: 8 }}>
+                    <div>
+                      <span
+                        className="link-like"
+                        onClick={() => fetchEmployeeHistory({ empCode: emp.empCode, staffName: emp.staffName })}
+                        role="link"
+                        aria-label={`Open ${emp.staffName} history`}
+                      >
+                        {sanitize(emp.staffName)}
+                      </span>
+                      <div style={{ fontSize: 12, color: "#666" }}>{emp.empCode || "-"}</div>
+                    </div>
                   </td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>{sanitize(emp.branch)}</td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>{sanitize(emp.city)}</td>
-                  <td style={{ border: "1px solid #eee", padding: 8, textAlign: "center" }}>{emp.count}</td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>
+                  <td style={{ padding: 8 }}>{sanitize(emp.branch)}</td>
+                  <td style={{ padding: 8 }}>{sanitize(emp.city)}</td>
+                  <td style={{ padding: 8, textAlign: "center" }}>{emp.count}</td>
+                  <td style={{ padding: 8 }}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                       <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 12, background: badgeColor }} aria-hidden />
                       <span>{avgText}</span>
                     </div>
                   </td>
-                  <td style={{ border: "1px solid #eee", padding: 8 }}>
-                    <div style={{ display: "flex", gap: 6 }}>
-                      <button onClick={() => fetchEmployeeHistory({ empCode: emp.empCode, staffName: emp.staffName })} className="btn btn-sm btn-outline-primary">Open</button>
-                      <button onClick={() => { setSelectedEmployee(emp); fetchEmployeeHistory({ empCode: emp.empCode, staffName: emp.staffName, openDetail: false }); downloadEmployeePDF(emp); }} className="btn btn-sm btn-outline-secondary">PDF</button>
-                      <button onClick={() => {
-                        const docs = results.filter((r) => {
-                          const code = r.empCode ? String(r.empCode).trim() : "";
-                          const name = r.staffName ? String(r.staffName).trim() : "";
-                          if (emp.empCode) return code === emp.empCode;
-                          return name === emp.staffName;
-                        });
-                        downloadJSON(docs, `${(emp.staffName || "employee").replace(/\s+/g,"_")}_range`);
-                      }} className="btn btn-sm btn-outline-secondary">JSON</button>
+                  <td style={{ padding: 8 }}>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <button onClick={() => fetchEmployeeHistory({ empCode: emp.empCode, staffName: emp.staffName })} className="btn">Open</button>
+                      <button onClick={() => { setSelectedEmployee(emp); fetchEmployeeHistory({ empCode: emp.empCode, staffName: emp.staffName, openDetail: false }); downloadEmployeePDF(emp); }} className="btn">PDF</button>
                     </div>
                   </td>
                 </tr>

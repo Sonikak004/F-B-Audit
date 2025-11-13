@@ -71,3 +71,28 @@ button:hover {
     white-space: nowrap;
   }
 }
+
+
+/* Make tables scroll horizontally on mobile */
+@media (max-width: 768px) {
+  .rr-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  .rr-table {
+    min-width: 650px; /* keep full table visible */
+  }
+
+  /* Make employee name bigger & tappable */
+  .emp-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1976d2;
+    text-decoration: underline;
+    padding: 6px 0;
+    display: inline-block;
+  }
+}
+
