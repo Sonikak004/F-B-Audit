@@ -699,14 +699,6 @@ export default function StaffEvaluation({ selection = {}, goBack }) {
             >
               {saving ? "Saving..." : "Submit Evaluation"}
             </button>
-
-            <button
-              type="button"
-              onClick={downloadPDF}
-              className="se-button se-btn-ghost"
-            >
-              📄 Download as PDF
-            </button>
           </div>
         </form>
       </div>
