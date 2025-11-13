@@ -135,7 +135,7 @@ const SelectPage = ({ onSelect, onOpenRetrieve }) => {
         </div>
 
         <div style={{ marginTop: 10, fontSize: 13, color: "#666" }}>
-          <div>Auditor: <strong>Kumar Kannaiyan</strong></div>
+          <div>Audited by: <strong>Kumar Kannaiyan - F&B Manager</strong></div>
           <div>Date: <strong>{todayDD}</strong></div>
         </div>
       </form>

@@ -1,40 +1,92 @@
-[debug] [2025-11-12T17:19:49.526Z] ----------------------------------------------------------------------
-[debug] [2025-11-12T17:19:49.530Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\sonik\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
-[debug] [2025-11-12T17:19:49.531Z] CLI Version:   14.24.2
-[debug] [2025-11-12T17:19:49.531Z] Platform:      win32
-[debug] [2025-11-12T17:19:49.531Z] Node Version:  v22.16.0
-[debug] [2025-11-12T17:19:49.532Z] Time:          Wed Nov 12 2025 22:49:49 GMT+0530 (India Standard Time)
-[debug] [2025-11-12T17:19:49.532Z] ----------------------------------------------------------------------
+[debug] [2025-11-12T17:37:47.935Z] ----------------------------------------------------------------------
+[debug] [2025-11-12T17:37:47.939Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\sonik\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js serve
+[debug] [2025-11-12T17:37:47.940Z] CLI Version:   14.24.2
+[debug] [2025-11-12T17:37:47.940Z] Platform:      win32
+[debug] [2025-11-12T17:37:47.940Z] Node Version:  v22.16.0
+[debug] [2025-11-12T17:37:47.941Z] Time:          Wed Nov 12 2025 23:07:47 GMT+0530 (India Standard Time)
+[debug] [2025-11-12T17:37:47.941Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2025-11-12T17:19:49.535Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-11-12T17:37:48.332Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-11-12T17:37:48.333Z] > authorizing via signed-in user (thesonikakumar@gmail.com)
+[debug] [2025-11-12T17:37:48.333Z] [iam] checking project audit-report-11a41 for permissions ["firebase.projects.get"]
+[debug] [2025-11-12T17:37:48.334Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:48.334Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:48.336Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/audit-report-11a41:testIamPermissions [none]
+[debug] [2025-11-12T17:37:48.336Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/audit-report-11a41:testIamPermissions x-goog-quota-user=projects/audit-report-11a41
+[debug] [2025-11-12T17:37:48.336Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/audit-report-11a41:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-11-12T17:37:49.970Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/audit-report-11a41:testIamPermissions 200
+[debug] [2025-11-12T17:37:49.970Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/audit-report-11a41:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-11-12T17:37:49.971Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:49.971Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:49.971Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/audit-report-11a41/services/cloudresourcemanager.googleapis.com [none]
+[debug] [2025-11-12T17:37:49.971Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/audit-report-11a41/services/cloudresourcemanager.googleapis.com x-goog-quota-user=projects/audit-report-11a41
+[debug] [2025-11-12T17:37:52.054Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/audit-report-11a41/services/cloudresourcemanager.googleapis.com 200
+[debug] [2025-11-12T17:37:52.054Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/audit-report-11a41/services/cloudresourcemanager.googleapis.com [omitted]
+[debug] [2025-11-12T17:37:52.062Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:52.062Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:52.062Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/audit-report-11a41 [none]
+[debug] [2025-11-12T17:37:52.454Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/audit-report-11a41 200
+[debug] [2025-11-12T17:37:52.455Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/audit-report-11a41 {"projectNumber":"560790160902","projectId":"audit-report-11a41","lifecycleState":"ACTIVE","name":"audit-report","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-11-12T09:17:05.810724Z"}
 [info] 
-     ######## #### ########  ######## ########     ###     ######  ########
-     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
-     ######    ##  ########  ######   ########  #########  ######  ######
-     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
-     ##       #### ##     ## ######## ########  ##     ##  ######  ########
-
-You're about to initialize a Firebase project in this directory:
-
-  C:\Users\sonik\Desktop\F-B-Audit\audit-report
-
-[debug] [2025-11-12T17:19:50.173Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
-[debug] [2025-11-12T17:19:50.173Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[info] === Serving from 'C:\Users\sonik\Desktop\F-B-Audit'...
 [info] 
-=== Project Setup
-[info] 
-[info] First, let's associate this project directory with a Firebase project.
-[info] You can create multiple project aliases by running firebase use --add, 
-[info] 
-[debug] [2025-11-12T17:20:00.742Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2025-11-12T17:20:00.743Z] > authorizing via signed-in user (sonikak004@gmail.com)
-[debug] [2025-11-12T17:20:00.744Z] Checked if tokens are valid: false, expires at: 1758629133239
-[debug] [2025-11-12T17:20:00.744Z] Checked if tokens are valid: false, expires at: 1758629133239
-[debug] [2025-11-12T17:20:00.745Z] > refreshing access token with scopes: []
-[debug] [2025-11-12T17:20:00.746Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
-[debug] [2025-11-12T17:20:00.746Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2025-11-12T17:20:00.999Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
-[debug] [2025-11-12T17:20:00.999Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2025-11-12T17:20:01.014Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
-[debug] [2025-11-12T17:20:01.768Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
-[debug] [2025-11-12T17:20:01.768Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2025-11-12T17:37:52.462Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:52.462Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:52.463Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/audit-report-11a41/sites 
+[debug] [2025-11-12T17:37:53.741Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/audit-report-11a41/sites 200
+[debug] [2025-11-12T17:37:53.741Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/audit-report-11a41/sites {"sites":[{"name":"projects/audit-report-11a41/sites/audit-report-11a41","defaultUrl":"https://audit-report-11a41.web.app","appId":"1:560790160902:web:427bdf1325b3100d542587","type":"DEFAULT_SITE"}]}
+[debug] [2025-11-12T17:37:53.742Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:53.742Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:53.742Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/audit-report-11a41/webApps/1:560790160902:web:427bdf1325b3100d542587/config [none]
+[debug] [2025-11-12T17:37:54.916Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/audit-report-11a41/webApps/1:560790160902:web:427bdf1325b3100d542587/config 200
+[debug] [2025-11-12T17:37:54.916Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/audit-report-11a41/webApps/1:560790160902:web:427bdf1325b3100d542587/config {"projectId":"audit-report-11a41","appId":"1:560790160902:web:427bdf1325b3100d542587","storageBucket":"audit-report-11a41.firebasestorage.app","apiKey":"AIzaSyCM3G4XgOcgbk2ZLdioeZgxjLroibiHqBM","authDomain":"audit-report-11a41.firebaseapp.com","messagingSenderId":"560790160902","projectNumber":"560790160902","version":"2"}
+[debug] [2025-11-12T17:37:54.924Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:54.924Z] Checked if tokens are valid: true, expires at: 1762971704984
+[debug] [2025-11-12T17:37:54.925Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/audit-report-11a41 [none]
+[debug] [2025-11-12T17:37:55.325Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/audit-report-11a41 200
+[debug] [2025-11-12T17:37:55.326Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/audit-report-11a41 {"projectId":"audit-report-11a41","projectNumber":"560790160902","displayName":"audit-report","name":"projects/audit-report-11a41","resources":{"hostingSite":"audit-report-11a41"},"state":"ACTIVE","etag":"1_09de5713-6d72-402f-b05b-8284bfceaf58"}
+[info] i  hosting[audit-report-11a41]: Serving hosting files from: public {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mpublic\u001b[22m"}}
+[info] +  hosting[audit-report-11a41]: Local server: http://localhost:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://localhost:5000\u001b[22m\u001b[24m"}}
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET / HTTP/1.1" 200 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[debug] [2025-11-12T17:38:04.534Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-app-compat.js [none]
+[debug] [2025-11-12T17:38:04.538Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-auth-compat.js [none]
+[debug] [2025-11-12T17:38:04.541Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-database-compat.js [none]
+[debug] [2025-11-12T17:38:04.544Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore-compat.js [none]
+[debug] [2025-11-12T17:38:04.548Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-functions-compat.js [none]
+[debug] [2025-11-12T17:38:04.551Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-messaging-compat.js [none]
+[debug] [2025-11-12T17:38:04.752Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-functions-compat.js 200
+[debug] [2025-11-12T17:38:04.752Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-functions-compat.js [stream]
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-functions-compat.js HTTP/1.1" 200 5789 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-functions-compat.js HTTP/1.1\" 200 5789 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[debug] [2025-11-12T17:38:04.757Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-storage-compat.js [none]
+[debug] [2025-11-12T17:38:04.764Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-app-compat.js 200
+[debug] [2025-11-12T17:38:04.764Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-app-compat.js [stream]
+[debug] [2025-11-12T17:38:04.775Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-auth-compat.js 200
+[debug] [2025-11-12T17:38:04.775Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-auth-compat.js [stream]
+[debug] [2025-11-12T17:38:04.778Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-messaging-compat.js 200
+[debug] [2025-11-12T17:38:04.778Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-messaging-compat.js [stream]
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-app-compat.js HTTP/1.1" 200 10151 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-app-compat.js HTTP/1.1\" 200 10151 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[debug] [2025-11-12T17:38:04.784Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics-compat.js [none]
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-messaging-compat.js HTTP/1.1" 200 9792 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-messaging-compat.js HTTP/1.1\" 200 9792 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[debug] [2025-11-12T17:38:04.802Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-database-compat.js 200
+[debug] [2025-11-12T17:38:04.802Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-database-compat.js [stream]
+[debug] [2025-11-12T17:38:04.804Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-remote-config-compat.js [none]
+[debug] [2025-11-12T17:38:04.805Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-storage-compat.js 200
+[debug] [2025-11-12T17:38:04.805Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-storage-compat.js [stream]
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-storage-compat.js HTTP/1.1" 200 14889 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-storage-compat.js HTTP/1.1\" 200 14889 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[debug] [2025-11-12T17:38:04.834Z] >>> [apiv2][query] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-performance-compat.js [none]
+[debug] [2025-11-12T17:38:04.845Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-remote-config-compat.js 200
+[debug] [2025-11-12T17:38:04.845Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-remote-config-compat.js [stream]
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-auth-compat.js HTTP/1.1" 200 41518 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-auth-compat.js HTTP/1.1\" 200 41518 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[debug] [2025-11-12T17:38:04.856Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics-compat.js 200
+[debug] [2025-11-12T17:38:04.856Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics-compat.js [stream]
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/init.js?useEmulator=true HTTP/1.1" 200 - "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/init.js?useEmulator=true HTTP/1.1\" 200 - \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-remote-config-compat.js HTTP/1.1" 200 12183 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-remote-config-compat.js HTTP/1.1\" 200 12183 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-analytics-compat.js HTTP/1.1" 200 9070 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-analytics-compat.js HTTP/1.1\" 200 9070 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[debug] [2025-11-12T17:38:04.879Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-performance-compat.js 200
+[debug] [2025-11-12T17:38:04.880Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-performance-compat.js [stream]
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-performance-compat.js HTTP/1.1" 200 13613 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-performance-compat.js HTTP/1.1\" 200 13613 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:04 +0000] "GET /__/firebase/12.5.0/firebase-database-compat.js HTTP/1.1" 200 49852 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:04 +0000] \"GET /__/firebase/12.5.0/firebase-database-compat.js HTTP/1.1\" 200 49852 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[debug] [2025-11-12T17:38:05.000Z] <<< [apiv2][status] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore-compat.js 200
+[debug] [2025-11-12T17:38:05.001Z] <<< [apiv2][body] GET https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore-compat.js [stream]
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:05 +0000] "GET /__/firebase/12.5.0/firebase-firestore-compat.js HTTP/1.1" 200 106657 "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:05 +0000] \"GET /__/firebase/12.5.0/firebase-firestore-compat.js HTTP/1.1\" 200 106657 \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}
+[info] i  hosting: ::1 - - [12/Nov/2025:17:38:05 +0000] "GET /favicon.ico HTTP/1.1" 200 - "http://localhost:5000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"::1 - - [12/Nov/2025:17:38:05 +0000] \"GET /favicon.ico HTTP/1.1\" 200 - \"http://localhost:5000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\""}}

@@ -133,65 +133,98 @@ const AuditForm = ({ selection = {}, goBack }) => {
     "Other (manual)",
   ];
 
-  /* ---------- Scoring (exact 100 total) ---------- */
-  // Points: each checklist item = 6 pts (13 * 6 = 78), observations = 11, maintenance = 11 => total 100
-  const POINTS_PER_CHECK = 6;
-  const OBS_MAINT_PTS = 11;
+ /* ---------- Scoring (integer distribution, exact 100) ---------- */
 
-  const getObservationScore = (preset, manual) => {
-    const p = String(preset || "").toLowerCase();
-    if (p === "no issues observed") return OBS_MAINT_PTS;
-    if (p.includes("other")) {
-      if (manual && manual.trim().toLowerCase().includes("no issue")) return OBS_MAINT_PTS;
-      return -OBS_MAINT_PTS;
+// fixed marks for remarks
+const OBS_POINTS = 5;   // Observations (positive = +5, negative = -5)
+const MAINT_POINTS = 7; // Maintenance (positive = +7, negative = -7)
+
+// checklist total and item count
+const TOTAL_CHECKLIST_POINTS = 88;
+const TOTAL_CHECKLIST_ITEMS = 13; // 5 kitchen + 3 hygiene + 5 foodSafety = 13
+
+// Build deterministic per-item points map (13 items -> sums to 88)
+// Strategy: give floor(TOTAL_CHECKLIST_POINTS / TOTAL_CHECKLIST_ITEMS) to each,
+// then distribute the remainder (+1) to the first `remainder` items in the joined order.
+const buildPerItemPoints = (kitchenArr, hygieneArr, foodArr) => {
+  const all = [...kitchenArr, ...hygieneArr, ...foodArr]; // deterministic order
+  const base = Math.floor(TOTAL_CHECKLIST_POINTS / TOTAL_CHECKLIST_ITEMS); // 6
+  const remainder = TOTAL_CHECKLIST_POINTS - base * TOTAL_CHECKLIST_ITEMS; // 10
+  const map = {};
+  all.forEach((label, idx) => {
+    map[label] = base + (idx < remainder ? 1 : 0); // first `remainder` items get +1
+  });
+  return map;
+};
+
+// Create the per-item points map once (reuse)
+const PER_ITEM_POINTS = buildPerItemPoints(kitchenParams, hygieneParams, foodSafetyParams);
+
+// Utility to get points for a single checklist item label
+const getPointsForItem = (label) => PER_ITEM_POINTS[label] ?? 0;
+
+// Observations scoring (exact integers)
+const getObservationScore = (preset, manual) => {
+  const p = String(preset || "").toLowerCase();
+  if (p === "no issues observed") return OBS_POINTS;
+  if (p.includes("other")) {
+    if (manual && manual.trim().toLowerCase().includes("no issue")) return OBS_POINTS;
+    return -OBS_POINTS;
+  }
+  if (!preset || preset === "-- Select --") return 0;
+  return -OBS_POINTS;
+};
+
+// Maintenance scoring (exact integers)
+const getMaintenanceScore = (preset, manual) => {
+  const p = String(preset || "").toLowerCase();
+  if (p === "no maintenance required" || p === "no issues observed") return MAINT_POINTS;
+  if (p.includes("other")) {
+    if (manual && manual.trim().toLowerCase().includes("no issue")) return MAINT_POINTS;
+    return -MAINT_POINTS;
+  }
+  if (!preset || preset === "-- Select --") return 0;
+  return -MAINT_POINTS;
+};
+
+// Compute scores (integer arithmetic only)
+const computeScores = (
+  kitchenObj,
+  hygieneObj,
+  foodObj,
+  observationsPreset,
+  observationsManual,
+  maintenancePreset,
+  maintenanceManual
+) => {
+  const allParams = [...kitchenParams, ...hygieneParams, ...foodSafetyParams];
+
+  // checklist sum using PER_ITEM_POINTS
+  let checklistRaw = 0;
+  allParams.forEach((label) => {
+    const val = (kitchenObj && kitchenObj[label]) ?? (hygieneObj && hygieneObj[label]) ?? (foodObj && foodObj[label]);
+    if (String(val).toLowerCase() === "yes") {
+      checklistRaw += getPointsForItem(label); // integer add
     }
-    if (!preset || preset === "-- Select --") return 0;
-    return -OBS_MAINT_PTS;
+  });
+
+  const obsScore = getObservationScore(observationsPreset, observationsManual); // integer
+  const maintScore = getMaintenanceScore(maintenancePreset, maintenanceManual); // integer
+
+  const rawScore = checklistRaw + obsScore + maintScore; // integer
+  const finalScore = Math.max(0, Math.min(100, rawScore)); // clamp to 0..100
+
+  return {
+    checklistRaw,
+    obsScore,
+    maintScore,
+    rawScore,
+    scoreOutOf100: finalScore,
+    maxChecklist: TOTAL_CHECKLIST_POINTS,
+    perItemPoints: PER_ITEM_POINTS, // exposed for debugging or PDF display if you want
   };
+};
 
-  const getMaintenanceScore = (preset, manual) => {
-    const p = String(preset || "").toLowerCase();
-    if (p === "no maintenance required" || p === "no issues observed") return OBS_MAINT_PTS;
-    if (p.includes("other")) {
-      if (manual && manual.trim().toLowerCase().includes("no issue")) return OBS_MAINT_PTS;
-      return -OBS_MAINT_PTS;
-    }
-    if (!preset || preset === "-- Select --") return 0;
-    return -OBS_MAINT_PTS;
-  };
-
-  const computeScores = (
-    kitchenObj,
-    hygieneObj,
-    foodObj,
-    observationsPreset,
-    observationsManual,
-    maintenancePreset,
-    maintenanceManual
-  ) => {
-    const allParams = [...kitchenParams, ...hygieneParams, ...foodSafetyParams];
-    let checklistRaw = 0;
-    allParams.forEach((label) => {
-      const val = kitchenObj?.[label] ?? hygieneObj?.[label] ?? foodObj?.[label];
-      if (String(val).toLowerCase() === "yes") checklistRaw += POINTS_PER_CHECK;
-    });
-
-    const obsScore = getObservationScore(observationsPreset, observationsManual);
-    const maintScore = getMaintenanceScore(maintenancePreset, maintenanceManual);
-
-    // raw score can be negative due to penalties; clamp final to 0..100
-    const rawScore = checklistRaw + obsScore + maintScore;
-    const finalScore = Math.max(0, Math.min(100, rawScore));
-
-    return {
-      checklistRaw,
-      obsScore,
-      maintScore,
-      rawScore,
-      scoreOutOf100: finalScore,
-      maxChecklist: allParams.length * POINTS_PER_CHECK,
-    };
-  };
 
   /* ---------- Form handlers ---------- */
   const handleCheck = (section, key, value) =>
@@ -497,13 +530,14 @@ const AuditForm = ({ selection = {}, goBack }) => {
             ← Back
           </button>
           <h3 style={{ margin: 0, color: "#1976d2" }}>Unit Audit</h3>
+        
           <div style={{ width: 40 }} />
         </div>
 
         {/* Header grid */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12, alignItems: "center" }}>
           <div>
-            <div style={{ fontSize: 12, color: "#333", fontWeight: 700 }}>Auditor</div>
+            <div style={{ fontSize: 12, color: "#333", fontWeight: 700 }}>Audited by - F&B Manager</div>
             <div style={{ color: defaultSelection.auditor ? "#111" : "red", marginTop: 4 }}>{defaultSelection.auditor || "— missing —"}</div>
           </div>
 
