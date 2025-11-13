@@ -21,6 +21,7 @@ const centerCityMap = {
   "Whitefield": "Bangalore",
   "Bannerghatta Road": "Bangalore",
   "Electronic City": "Bangalore",
+  "Manyata": "Bangalore",
   "Kochi": "Kochi",
   "Coimbatore": "Coimbatore",
 };
