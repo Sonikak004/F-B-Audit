@@ -158,7 +158,7 @@ export default function RetrieveReports({ goBack }) {
   const [dateFromISO, setDateFromISO] = useState("");
   const [dateToISO, setDateToISO] = useState("");
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState([]); // filtered documents (each eval)
+  const [results, setResults] = useState([]); // filtered documents (each eval or audit)
   const [message, setMessage] = useState("");
   const [lastError, setLastError] = useState(null);
 
@@ -187,8 +187,8 @@ export default function RetrieveReports({ goBack }) {
       const sorted = val.recs
         .slice()
         .sort((a, b) => {
-          const ta = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : 0;
-          const tb = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : 0;
+          const ta = (a.timestamp && a.timestamp.seconds) || (a.createdAt && a.createdAt.seconds) || 0;
+          const tb = (b.timestamp && b.timestamp.seconds) || (b.createdAt && b.createdAt.seconds) || 0;
           return tb - ta;
         });
       const latest = sorted[0] || val.recs[0];
@@ -227,28 +227,33 @@ export default function RetrieveReports({ goBack }) {
       setMessage("Please select a branch.");
       return;
     }
-    if (reportType === "staff" && !dateFromISO && !dateToISO) {
-      setMessage("Pick a date range (from / to) for staff reports (you can use single-day by selecting same date twice).");
+
+    // For both unit and staff we need at least one date input (from or to) to filter range.
+    if (!dateFromISO && !dateToISO) {
+      setMessage("Please pick a date range (From / To). Use same date twice for single-day queries.");
       return;
     }
 
     setLoading(true);
     try {
       if (reportType === "unit") {
-        const target = dateFromISO || dateToISO;
-        if (!target) {
-          setMessage("Please select a date for Unit Audit reports.");
-          setLoading(false);
-          return;
-        }
-        const dateDD = isoToDDMMYYYY(target);
+        // Fetch all unitAudits for branch ordered by timestamp then filter client-side by date (dd/mm/yyyy)
         const col = collection(db, "unitAudits");
-        const q = query(col, where("branch", "==", branch), where("date", "==", dateDD), orderBy("timestamp", "desc"));
+        const q = query(col, where("branch", "==", branch), orderBy("timestamp", "desc"));
         const snap = await getDocs(q);
-        const docs = dedupeById(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        let docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+        // filter by date field (dd/mm/yyyy)
+        docs = docs.filter((r) => {
+          const rDate = r.date ?? r.selection?.date ?? "";
+          return withinRange(rDate, dateFromISO, dateToISO);
+        });
+
+        docs = dedupeById(docs);
         setResults(docs);
-        setMessage(docs.length ? `${docs.length} unit audit(s) found.` : "No unit audits found for that date.");
+        setMessage(docs.length ? `${docs.length} unit audit(s) found in selected range.` : "No unit audits found in that range.");
       } else {
+        // Staff evaluations: fetch by selection.branch then filter by selection.date range
         const col = collection(db, "staffEvaluations");
         const q = query(col, where("selection.branch", "==", branch), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
@@ -301,6 +306,7 @@ export default function RetrieveReports({ goBack }) {
 
       let docs = dedupeById(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
 
+      // respect the currently selected date range if any
       if (dateFromISO || dateToISO) {
         docs = docs.filter((r) => {
           const rDate = r.selection?.date ?? r.date ?? "";
@@ -337,7 +343,112 @@ export default function RetrieveReports({ goBack }) {
     }
   };
 
-  // Employee PDF
+  // === Unit PDF generator: header adjusted per your request ===
+  const downloadUnitPDF = (rec) => {
+    const doc = new jsPDF("p", "mm", "a4");
+    const baseFont = "helvetica";
+    const w = doc.internal.pageSize.getWidth();
+    let y = 18;
+
+    // Title: only UNIT AUDIT REPORT
+    doc.setFont(baseFont, "bold");
+    doc.setFontSize(14);
+    doc.text("Sukino Healthcare - UNIT AUDIT REPORT", w / 2, y, { align: "center" });
+    y += 8;
+
+    // Audited by: F&B Manager Kumar Kannaiyan (fixed text)
+    doc.setFont(baseFont, "normal");
+    doc.setFontSize(11);
+    doc.text("Audited by: F&B Manager - Kumar Kannaiyan", 14, y);
+    y += 8;
+
+    // Branch / City / Date / Score
+    doc.setFontSize(10);
+    doc.text(`Branch: ${sanitize(rec.branch || rec.selection?.branch)}`, 14, y);
+    doc.text(`City: ${sanitize(rec.city || rec.selection?.city)}`, 14, y + 6);
+    const dateText = `Date: ${sanitize(rec.date ?? rec.selection?.date ?? isoToDDMMYYYY(dateFromISO || dateToISO || ""))}`;
+    doc.text(dateText, w - 14, y, { align: "right" });
+    const score = rec.scoreOutOf100 ?? rec.score?.scoreOutOf100 ?? rec.score?.score ?? rec.scoreBreakdown?.scoreOutOf100 ?? null;
+    const scoreText = score !== null ? `Score: ${score} / 100` : "Score: -";
+    doc.text(scoreText, w - 14, y + 6, { align: "right" });
+    y += 12;
+
+    // Helper to convert map/object fields to rows
+    const objToRows = (obj) => {
+      if (!obj || typeof obj !== "object") return [];
+      return Object.entries(obj).map(([k, v]) => [String(k), String(v ?? "-")]);
+    };
+
+    try {
+      if (rec.kitchen && Object.keys(rec.kitchen).length) {
+        autoTable(doc, {
+          startY: y,
+          head: [["Kitchen", "Status"]],
+          body: objToRows(rec.kitchen),
+          theme: "grid",
+          styles: { font: baseFont, fontSize: 9 },
+          headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+          columnStyles: { 0: { cellWidth: 120 }, 1: { cellWidth: 50 } },
+        });
+        y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 8 : y + 40;
+      }
+
+      if (rec.hygiene && Object.keys(rec.hygiene).length) {
+        autoTable(doc, {
+          startY: y,
+          head: [["Hygiene", "Status"]],
+          body: objToRows(rec.hygiene),
+          theme: "grid",
+          styles: { font: baseFont, fontSize: 9 },
+          headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+          columnStyles: { 0: { cellWidth: 120 }, 1: { cellWidth: 50 } },
+        });
+        y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 8 : y + 40;
+      }
+
+      if (rec.foodSafety && Object.keys(rec.foodSafety).length) {
+        autoTable(doc, {
+          startY: y,
+          head: [["Food Safety", "Status"]],
+          body: objToRows(rec.foodSafety),
+          theme: "grid",
+          styles: { font: baseFont, fontSize: 9 },
+          headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+          columnStyles: { 0: { cellWidth: 120 }, 1: { cellWidth: 50 } },
+        });
+        y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 8 : y + 40;
+      }
+    } catch (err) {
+      console.warn("autotable error in unit PDF:", err);
+    }
+
+    // Observations / Maintenance / Action plan
+    const addBlock = (label, text) => {
+      doc.setFont(baseFont, "bold");
+      doc.setFontSize(10);
+      doc.text(label, 14, y);
+      doc.setFont(baseFont, "normal");
+      doc.setFontSize(9);
+      const split = doc.splitTextToSize(text || "-", 180);
+      doc.text(split, 14, y + 6);
+      y += split.length * 5 + 10;
+    };
+
+    addBlock("Observations:", rec.observations || rec.selection?.observations || "-");
+    addBlock("Maintenance / Suggestions:", rec.maintenance || rec.selection?.maintenance || "-");
+    addBlock("Action Plan / Corrective Measures:", rec.actionPlan || rec.selection?.actionPlan || rec.selection?.action || "-");
+
+    // Footer
+    doc.setFontSize(9);
+    const footer = `Audit report as on ${sanitize(rec.date ?? rec.selection?.date ?? isoToDDMMYYYY(dateFromISO || dateToISO || ""))} – ${sanitize(rec.branch || rec.selection?.branch || "-")}`;
+    doc.text(footer, w / 2, doc.internal.pageSize.getHeight() - 10, { align: "center" });
+
+    const safeBranch = (rec.branch || rec.selection?.branch || "Branch").replace(/\s+/g, "_");
+    const safeDate = (sanitize(rec.date ?? rec.selection?.date ?? isoToDDMMYYYY(dateFromISO || dateToISO || "")) || "date").replace(/\s+/g, "_");
+    doc.save(`${safeBranch}_Audit_${safeDate}.pdf`);
+  };
+
+  // Employee PDF (unchanged)
   const downloadEmployeePDF = (emp) => {
     const rows = employeeHistory || [];
     const doc = new jsPDF("p", "mm", "a4");
@@ -460,7 +571,7 @@ export default function RetrieveReports({ goBack }) {
     doc.text(`Range: ${rangeText}`, w - 14, y, { align: "right" });
     y += 8;
 
-    // Employees table (no 'Recs' column; compact)
+    // Employees table (compact)
     const tableBody = employeesAgg.map((e) => {
       const avgText = e.avg !== null && e.avg !== undefined ? Number(e.avg).toFixed(1) : "-";
       return [e.staffName || "-", e.empCode || "-", avgText, e.label || "-", e.branch || "-", e.city || "-"];
@@ -525,11 +636,9 @@ export default function RetrieveReports({ goBack }) {
     .rr-container { max-width: 1100px; margin: 0 auto; padding: 18px; }
     .rr-card { border: 1px solid #e6e6e6; border-radius: 8px; padding: 12px; margin-bottom: 12px; box-sizing: border-box; background: #fff; }
     .controls-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: start; box-sizing: border-box; }
-    .controls-grid > div { min-width: 0; overflow: hidden; } /* important: avoids children overflowing */
+    .controls-grid > div { min-width: 0; overflow: hidden; } /* avoids children overflowing */
     .controls-grid select, .controls-grid input { width: 100%; box-sizing: border-box; min-height: 38px; padding: 8px; }
-    /* specifically make date inputs fit and keep the calendar icon inside */
     input[type="date"] { width: 100%; box-sizing: border-box; padding-right: 12px; min-width: 0; }
-    /* for browsers that allow styling the picker */
     input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; padding: 0 6px; }
     .controls-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .quick-buttons { display: flex; gap: 8px; margin-top: 8px; flex-wrap: nowrap; align-items: center; overflow: visible; }
@@ -554,7 +663,7 @@ export default function RetrieveReports({ goBack }) {
       .controls-actions { flex-direction: column; }
       .rr-table { min-width: 520px; font-size: 14px; }
       .btn { width: 100%; box-sizing: border-box; }
-      /* MAKE QUICK BUTTONS VERTICAL on small screens (requested) */
+      /* MAKE QUICK BUTTONS VERTICAL on small screens */
       .quick-buttons { flex-direction: column; gap: 6px; align-items: stretch; }
       .quick-buttons .quick-btn { width: 100%; display: inline-block; box-sizing: border-box; white-space: normal; text-align: center; }
     }
@@ -780,9 +889,9 @@ export default function RetrieveReports({ goBack }) {
               return (
                 <tr key={r.id || i}>
                   <td style={{ padding: 8 }}>{i + 1}</td>
-                  <td style={{ padding: 8 }}>{sanitize(r.selection?.date ?? r.date ?? "-")}</td>
-                  <td style={{ padding: 8 }}>{sanitize(r.selection?.branch ?? r.branch)}</td>
-                  <td style={{ padding: 8 }}>{sanitize(r.selection?.city ?? r.city)}</td>
+                  <td style={{ padding: 8 }}>{sanitize(r.date ?? r.selection?.date ?? "-")}</td>
+                  <td style={{ padding: 8 }}>{sanitize(r.branch)}</td>
+                  <td style={{ padding: 8 }}>{sanitize(r.city)}</td>
                   <td style={{ padding: 8 }}>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                       <span style={{ display: "inline-block", width: 12, height: 12, borderRadius: 12, background: badgeColor }} aria-hidden />
@@ -791,7 +900,7 @@ export default function RetrieveReports({ goBack }) {
                   </td>
                   <td style={{ padding: 8 }}>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button onClick={() => alert("Unit PDF (existing)")} className="btn">PDF</button>
+                      <button onClick={() => downloadUnitPDF(r)} className="btn">PDF</button>
                     </div>
                   </td>
                 </tr>
