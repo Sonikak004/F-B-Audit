@@ -148,6 +148,7 @@ export default function RetrieveReports({ goBack }) {
     "Whitefield",
     "Bannerghatta Road",
     "Electronic City",
+    "Manyata",
     "Kochi",
     "Coimbatore",
   ];
